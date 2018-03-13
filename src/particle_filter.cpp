@@ -156,9 +156,13 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 				}
 			}
 
+			// calculate weight using normalization terms and exponent
 			double stdX = std_landmark[0];
 			double stdY = std_landmark[1];
-			double newW = ( 1/(2*M_PI*stdX*stdY)) * exp( -( pow(prX-convertedX,2)/(2*pow(stdX, 2)) + (pow(prY-convertedY,2)/(2*pow(stdY, 2))) ) );
+			double gauss_norm =( 1/(2*M_PI*stdX*stdY)) ;
+			double exponent = ( pow(prX-convertedX,2)/(2*pow(stdX, 2)) + (pow(prY-convertedY,2)/(2*pow(stdY, 2))) );
+			double newW = gauss_norm * exp(-exponent);
+			//double newW = ( 1/(2*M_PI*stdX*stdY)) * exp( -( pow(prX-convertedX,2)/(2*pow(stdX, 2)) + (pow(prY-convertedY,2)/(2*pow(stdY, 2))) ) );
 
 			particles[i].weight *= newW;
 		}
@@ -170,26 +174,27 @@ void ParticleFilter::resample() {
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
 	default_random_engine gen;
-	vector<Particle> new_particles;
+	vector<Particle> resampled_particles;
 	vector<double> weights;
-	for(int i = 0; i < num_particles; i++){
+	for(int i = 0; i < num_particles; ++i) {
 		weights.push_back(particles[i].weight);
 	}
+
 	double max_weight = *max_element(weights.begin(), weights.end());
-	uniform_int_distribution<int> uniintdist(0, num_particles - 1);
-	int index = uniintdist(gen);
-	uniform_real_distribution<double> unirealdist(0.0, max_weight);
+	uniform_real_distribution<double> dist(0.0, max_weight);
+	uniform_int_distribution<int> dist_index(0, num_particles - 1);
+	int index = dist_index(gen);
 	double beta = 0.0;
-	for(int i = 0; i < num_particles; i++){
-		beta += unirealdist(gen) * 2.0;
+
+	for(int j = 0; j < num_particles; j++) {
+		beta += 2.0 * dist(gen);
 		while (beta > weights[index]){
 			beta -= weights[index];
 			index = (index + 1) % num_particles;
 		}
-		new_particles.push_back(particles[index]);
+		resampled_particles.push_back(particles[index]);
 	}
-
-	particles = new_particles;
+	particles = resampled_particles;
 }
 
 Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations,
