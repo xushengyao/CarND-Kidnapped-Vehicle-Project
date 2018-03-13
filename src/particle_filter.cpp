@@ -142,7 +142,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		}
 
 		dataAssociation(in_range_landmarks, transformed_observations);
-		//particles[i].weight = 1.0;
+		particles[i].weight = 1.0;
 
 		for (int l = 0; l < transformed_observations.size(); ++l) {
 
