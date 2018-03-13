@@ -86,9 +86,9 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 		int id;
 		for (int j = 0; j < predicted.size(); j++) {
 			// Current Distance using helper_functions
-			double dist = dist(observations[i].x, observations[i].y, predicted[j].x, predicted[j].y);
-			if(dist < min_dist) {
-				min_dist = dist;
+			double distance = dist(observations[i].x, observations[i].y, predicted[j].x, predicted[j].y);
+			if(distance < min_dist) {
+				min_dist = distance;
 				id = predicted[j].id;
 			}
 		}
@@ -120,9 +120,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double landmarkX = map_landmarks.landmark_list[j].x_f;
 			double landmarkY = map_landmarks.landmark_list[j].y_f;
 
-			double dist = dist(x, y, landmarkX, landmarkY);
+			double distance = dist(x, y, landmarkX, landmarkY);
 
-			if (dist <= sensor_range) {
+			if (distance <= sensor_range) {
 				in_range_landmarks.push_back(LandmarkObs{landmarkID, landmarkX, landmarkY});
 			}
 		}
@@ -147,10 +147,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double convertedX = transformed_observations[l].x;
 			double convertedY = transformed_observations[l].y;
 			int convertedID = transformed_observations[l].id;
+			double prX, prY;
+
 			for (int m = 0; m< in_range_landmarks.size(); m++) {
 				if (in_range_landmarks[m].id == convertedID) {
-					double prX = in_range_landmarks[m].x;
-					double prY = in_range_landmarks[m].y;
+					prX = in_range_landmarks[m].x;
+					prY = in_range_landmarks[m].y;
 				}
 			}
 
