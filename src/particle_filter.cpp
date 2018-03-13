@@ -60,6 +60,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	for (int i; i < num_particles; ++i) {
 
 		double theta = particles[i].theta;
+		// In case yaw_rate is close to zero
 		if (fabs(yaw_rate) < 0.00001) {
 			particles[i].x += velocity * delta_t * cos(theta);
 			particles[i].y += velocity * delta_t * sin(theta);
@@ -82,6 +83,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	// NOTE: this method will NOT be called by the grading code. But you will probably find it useful to
 	//   implement this method and use it as a helper during the updateWeights phase.
 	for(int i = 0; i < observations.size(); i++ ) {
+		// Pick the maximum value as the initial value of minimial distance
 		double min_dist = numeric_limits<double>::max();
 		int id;
 		for (int j = 0; j < predicted.size(); j++) {
@@ -92,7 +94,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 				id = predicted[j].id;
 			}
 		}
-		// Set observed measurement to landmark ID
+		// Set observed measurement to nearest landmark ID
 		observations[i].id = id;
 	}
 }
@@ -119,9 +121,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			int landmarkID = map_landmarks.landmark_list[j].id_i;
 			double landmarkX = map_landmarks.landmark_list[j].x_f;
 			double landmarkY = map_landmarks.landmark_list[j].y_f;
-
+			// Calculate the distance
 			double distance = dist(x, y, landmarkX, landmarkY);
-
+			// Pick the landmard inside the sensor range
 			if (distance <= sensor_range) {
 				in_range_landmarks.push_back(LandmarkObs{landmarkID, landmarkX, landmarkY});
 			}
@@ -140,7 +142,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		}
 
 		dataAssociation(in_range_landmarks, transformed_observations);
-		particles[i].weight = 1.0;
+		//particles[i].weight = 1.0;
 
 		for (int l = 0; l < transformed_observations.size(); ++l) {
 
@@ -162,7 +164,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double gauss_norm =( 1/(2*M_PI*stdX*stdY)) ;
 			double exponent = ( pow(prX-convertedX,2)/(2*pow(stdX, 2)) + (pow(prY-convertedY,2)/(2*pow(stdY, 2))) );
 			double newW = gauss_norm * exp(-exponent);
-			//double newW = ( 1/(2*M_PI*stdX*stdY)) * exp( -( pow(prX-convertedX,2)/(2*pow(stdX, 2)) + (pow(prY-convertedY,2)/(2*pow(stdY, 2))) ) );
 
 			particles[i].weight *= newW;
 		}
@@ -179,7 +180,7 @@ void ParticleFilter::resample() {
 	for(int i = 0; i < num_particles; ++i) {
 		weights.push_back(particles[i].weight);
 	}
-
+  // Get max weight
 	double max_weight = *max_element(weights.begin(), weights.end());
 	uniform_real_distribution<double> dist(0.0, max_weight);
 	uniform_int_distribution<int> dist_index(0, num_particles - 1);
