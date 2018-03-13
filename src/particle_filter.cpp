@@ -15,6 +15,7 @@
 #include <string>
 #include <iterator>
 
+#include "helper_functions.h"
 #include "particle_filter.h"
 
 using namespace std;
@@ -34,11 +35,11 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	for (int i = 0; i < num_particles; ++i) {
 		Particle particle;
 
-		particle.id = ;
+		particle.id = i;
 		particle.x = dist_x(gen);
 		particle.y = dist_y(gen);
 		particle.theta = dist_theta(gen);
-		particle.weights = 1.0;
+		particle.weight = 1.0;
 		particles.push_back(particle);
 		weights.push_back(1.0);
 	}
@@ -60,12 +61,12 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 
 		double theta = particles[i].theta;
 		if (fabs(yaw_rate) < 0.00001) {
-			particles[i].x += velocity * delta_t * cos(theta)
-			particles[i].y += velocity * delta_t * sin(theta)
+			particles[i].x += velocity * delta_t * cos(theta);
+			particles[i].y += velocity * delta_t * sin(theta);
 		}
 		else {
-			particles[i].x += （velocity / yaw_rate) * (sin(theta + yaw_rate * delta_t) - sin(theta))
-			particles[i].y += （velocity / yaw_rate) * (cos(theta) - cos(theta + yaw_rate * delta_t))
+			particles[i].x += (velocity / yaw_rate) * (sin(theta + yaw_rate * delta_t) - sin(theta));
+			particles[i].y += (velocity / yaw_rate) * (cos(theta) - cos(theta + yaw_rate * delta_t));
 			particles[i].theta += yaw_rate * delta_t;
 		}
 		// Adding noise
@@ -148,8 +149,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			int convertedID = transformed_observations[l].id;
 			for (int m = 0; m< in_range_landmarks.size(); m++) {
 				if (in_range_landmarks[m].id == convertedID) {
-					prX = in_range_landmarks[m].x;
-					prY = in_range_landmarks[m].y;
+					double prX = in_range_landmarks[m].x;
+					double prY = in_range_landmarks[m].y;
 				}
 			}
 
