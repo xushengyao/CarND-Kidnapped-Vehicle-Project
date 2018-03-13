@@ -151,7 +151,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			int convertedID = transformed_observations[l].id;
 			double prX, prY;
 
-			for (int m = 0; m< in_range_landmarks.size(); m++) {
+			for (int m = 0; m < in_range_landmarks.size(); m++) {
 				if (in_range_landmarks[m].id == convertedID) {
 					prX = in_range_landmarks[m].x;
 					prY = in_range_landmarks[m].y;
@@ -161,8 +161,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// calculate weight using normalization terms and exponent
 			double stdX = std_landmark[0];
 			double stdY = std_landmark[1];
-			double gauss_norm =( 1/(2*M_PI*stdX*stdY)) ;
-			double exponent = ( pow(prX-convertedX,2)/(2*pow(stdX, 2)) + (pow(prY-convertedY,2)/(2*pow(stdY, 2))) );
+			double gauss_norm =( 1/(2 * M_PI * stdX * stdY)) ;
+			double exponent = ( pow(prX - convertedX, 2)/(2 * pow(stdX, 2)) + (pow(prY - convertedY, 2)/(2 * pow(stdY, 2))) );
 			double newW = gauss_norm * exp(-exponent);
 
 			particles[i].weight *= newW;
