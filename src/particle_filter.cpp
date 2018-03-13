@@ -60,7 +60,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	for (int i; i < num_particles; ++i) {
 
 		double theta = particles[i].theta;
-		// In case yaw_rate is close to zero
+		// In case steering angle no change
 		if (fabs(yaw_rate) < 0.00001) {
 			particles[i].x += velocity * delta_t * cos(theta);
 			particles[i].y += velocity * delta_t * sin(theta);
